@@ -1,7 +1,9 @@
 package com.lite.delieveryscanner
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
@@ -18,6 +20,8 @@ class ScanActivity : Activity(){
 
     private lateinit var surfaceView: SurfaceView
     private lateinit var cameraSource : CameraSource
+    private val MY_CAMERA_REQUEST_CODE = 100
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,7 +31,6 @@ class ScanActivity : Activity(){
         windowManager.defaultDisplay.getMetrics(displayMetrics)
         var height = displayMetrics.heightPixels
         var width = displayMetrics.widthPixels
-        Log.d("Saket", "dpwidth: ${displayMetrics.widthPixels} dpheight: ${displayMetrics.heightPixels}")
         if(!isLandScape(displayMetrics.widthPixels, displayMetrics.heightPixels)){
             width = getPreviewWidth(displayMetrics.heightPixels)
         }else{
@@ -36,11 +39,13 @@ class ScanActivity : Activity(){
         var barcodeDetector = BarcodeDetector.Builder(this).setBarcodeFormats(Barcode.QR_CODE).build()
         cameraSource = CameraSource.Builder(this, barcodeDetector).setRequestedPreviewSize(width, height).setAutoFocusEnabled(true).build()
         surfaceView.holder.addCallback(object : SurfaceHolder.Callback{
-            override fun surfaceChanged(surface: SurfaceHolder?, p1: Int, p2: Int, p3: Int) {
 
-                try {
-                    cameraSource.start(surface)
-                }catch (e: IOException){
+            override fun surfaceChanged(surface: SurfaceHolder?, p1: Int, p2: Int, p3: Int) {
+                if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
+                    requestPermissions( Array(1){Manifest.permission.CAMERA}, MY_CAMERA_REQUEST_CODE)
+                    try {
+                       cameraSource.start(surface)
+                    }catch (e: IOException){
 
                 }
             }
@@ -64,7 +69,7 @@ class ScanActivity : Activity(){
                 if(sparseArray.size() > 0){
                     var resultIntent = Intent()
                     resultIntent.putExtra("model", sparseArray.valueAt(0).displayValue)
-                    setResult(Activity.RESULT_OK, resultIntent)
+                    setResult(RESULT_OK, resultIntent)
                     surfaceView.holder.surface.release()
                     Log.d("Saket",sparseArray.valueAt(0).displayValue)
                     finish()
@@ -87,5 +92,16 @@ class ScanActivity : Activity(){
     private fun getPreviewHeight(width : Int): Int{
         val height = width*(16.0f/9.0f)
         return height.toInt()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == MY_CAMERA_REQUEST_CODE) {
+            cameraSource.start()
+        }
     }
 }
