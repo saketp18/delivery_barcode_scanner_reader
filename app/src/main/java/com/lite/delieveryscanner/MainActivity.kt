@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity() {
 
             var response = data?.let { it.getStringExtra("model") }
 
-            var json = JSONObject(response)
+            var json : JSONObject? = JSONObject(response)
             json?.let {
                 var nameresult = it.getString(NAME_TAG)
                 var phoneresult = it.getString(PHONE_TAG)
