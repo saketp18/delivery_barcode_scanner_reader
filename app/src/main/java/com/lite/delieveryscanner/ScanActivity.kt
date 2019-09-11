@@ -8,16 +8,13 @@ import android.util.Log
 import android.util.SparseArray
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import android.view.Window
-import android.view.WindowManager
-import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.vision.CameraSource
 import com.google.android.gms.vision.Detector
 import com.google.android.gms.vision.barcode.Barcode
 import com.google.android.gms.vision.barcode.BarcodeDetector
 import java.io.IOException
 
-class ScanActivity : AppCompatActivity(){
+class ScanActivity : Activity(){
 
     private lateinit var surfaceView: SurfaceView
     private lateinit var cameraSource : CameraSource
@@ -28,9 +25,15 @@ class ScanActivity : AppCompatActivity(){
         surfaceView = findViewById(R.id.surface)
         var displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
-
+        var height = displayMetrics.heightPixels
+        var width = displayMetrics.widthPixels
+        if(!isLandScape(displayMetrics.widthPixels, displayMetrics.heightPixels)){
+            width = getPreviewWidth(displayMetrics.heightPixels)
+        }else{
+            height = getPreviewHeight(displayMetrics.widthPixels)
+        }
         var barcodeDetector = BarcodeDetector.Builder(this).setBarcodeFormats(Barcode.QR_CODE).build()
-        cameraSource = CameraSource.Builder(this, barcodeDetector).setRequestedPreviewSize(displayMetrics.widthPixels, displayMetrics.heightPixels).setAutoFocusEnabled(true).build()
+        cameraSource = CameraSource.Builder(this, barcodeDetector).setRequestedPreviewSize(height, width).setAutoFocusEnabled(true).build()
         surfaceView.holder.addCallback(object : SurfaceHolder.Callback{
             override fun surfaceChanged(surface: SurfaceHolder?, p1: Int, p2: Int, p3: Int) {
 
@@ -67,5 +70,21 @@ class ScanActivity : AppCompatActivity(){
                 }
             }
         })
+    }
+
+    private fun isLandScape(width : Int, height : Int): Boolean{
+        if(width > height)
+            return false
+        return true
+    }
+
+    private fun getPreviewWidth(height : Int): Int{
+        val width = height*(3.0f/4.0f)
+        return width.toInt()
+    }
+
+    private fun getPreviewHeight(width : Int): Int{
+        val height = width*(4.0f/3.0f)
+        return height.toInt()
     }
 }
