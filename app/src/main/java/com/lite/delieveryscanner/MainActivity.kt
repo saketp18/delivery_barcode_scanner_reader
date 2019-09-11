@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity() {
         val text :String = json.toString()
         val multiFormatWriter = MultiFormatWriter()
         try {
-            val bitMatrix = multiFormatWriter.encode(text, BarcodeFormat.QR_CODE, 500, 500)
+            val bitMatrix = multiFormatWriter.encode(text, BarcodeFormat.QR_CODE, 1000, 1000)
             val barcodeEncoder = BarcodeEncoder()
             val bitmap = barcodeEncoder.createBitmap(bitMatrix)
             qrimage.setImageBitmap(bitmap)

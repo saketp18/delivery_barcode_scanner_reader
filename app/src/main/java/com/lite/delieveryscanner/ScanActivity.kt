@@ -27,13 +27,14 @@ class ScanActivity : Activity(){
         windowManager.defaultDisplay.getMetrics(displayMetrics)
         var height = displayMetrics.heightPixels
         var width = displayMetrics.widthPixels
+        Log.d("Saket", "dpwidth: ${displayMetrics.widthPixels} dpheight: ${displayMetrics.heightPixels}")
         if(!isLandScape(displayMetrics.widthPixels, displayMetrics.heightPixels)){
             width = getPreviewWidth(displayMetrics.heightPixels)
         }else{
             height = getPreviewHeight(displayMetrics.widthPixels)
         }
         var barcodeDetector = BarcodeDetector.Builder(this).setBarcodeFormats(Barcode.QR_CODE).build()
-        cameraSource = CameraSource.Builder(this, barcodeDetector).setRequestedPreviewSize(height, width).setAutoFocusEnabled(true).build()
+        cameraSource = CameraSource.Builder(this, barcodeDetector).setRequestedPreviewSize(width, height).setAutoFocusEnabled(true).build()
         surfaceView.holder.addCallback(object : SurfaceHolder.Callback{
             override fun surfaceChanged(surface: SurfaceHolder?, p1: Int, p2: Int, p3: Int) {
 
@@ -73,18 +74,18 @@ class ScanActivity : Activity(){
     }
 
     private fun isLandScape(width : Int, height : Int): Boolean{
-        if(width > height)
+        if(width < height)
             return false
         return true
     }
 
     private fun getPreviewWidth(height : Int): Int{
-        val width = height*(3.0f/4.0f)
+        val width = height*(16.0f/9.0f)
         return width.toInt()
     }
 
     private fun getPreviewHeight(width : Int): Int{
-        val height = width*(4.0f/3.0f)
+        val height = width*(16.0f/9.0f)
         return height.toInt()
     }
 }
